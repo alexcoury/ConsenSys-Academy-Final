@@ -25,6 +25,11 @@ contract CrowdfundingCampaign {
 
     Withdrawal[] public withdrawals;
 
+    event LogContribution(address contributor, uint256 value);
+    event LogWithdrawalCreation(address creator, address recipient, uint256 value);
+    event LogWithdrawalCompletion(address recipient, uint256 value);
+
+
     constructor(string memory _title, string memory _description, uint256 _minimum, uint256 _goal) public {
         creator = msg.sender;
         title = _title;
@@ -44,6 +49,16 @@ contract CrowdfundingCampaign {
         require(contributors[msg.sender], "You must be a contributor");
         _;
     }
+    
+    //Function to read a single crowdfunding campaign
+    function readCampaign() public view returns (string memory _title, string memory _description,
+    uint256 _minimum, uint256 _goal, uint256 _count) {
+        _title = title;
+        _description = description;
+        _minimum = minimumContribution;
+        _goal = targetGoal;
+        _count = contributorsCount;
+    }
 
     /** @dev Function to fund the campaign as a contributor
        */
@@ -51,6 +66,7 @@ contract CrowdfundingCampaign {
         require(msg.value >= minimumContribution, "The contribution must be above the minimum Contribution");
         contributors[msg.sender] = true;
         contributorsCount++;
+        emit LogContribution(msg.sender, msg.value);
     }
 
     /** @dev Creator creates a withdrawl request to withdrawl funds from raised crowdfund
@@ -64,6 +80,7 @@ contract CrowdfundingCampaign {
             approvalCount: 0
         });
         withdrawals.push(newWithdrawal);
+        emit LogWithdrawalCreation(msg.sender, recipient, value);
     }
 
     /** @dev Returns the details for a withdrawl request
@@ -100,6 +117,8 @@ contract CrowdfundingCampaign {
 
         withdrawal.recipient.transfer(withdrawal.value);
         withdrawal.complete = true;
+
+        emit LogWithdrawalCompletion(withdrawal.recipient, withdrawal.value);
     }
 
 
