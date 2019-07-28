@@ -113,7 +113,7 @@ contract CrowdfundingCampaign {
         Withdrawal storage withdrawal = withdrawals[index];
 
         require(withdrawal.approvalCount > (contributorsCount / 2),"Approval must be greater than 50%");
-        require(!withdrawal.complete, "Withdrawl must not already be complete");
+        require(!withdrawal.complete, "Withdrawal must not already be complete");
 
         withdrawal.recipient.transfer(withdrawal.value);
         withdrawal.complete = true;
